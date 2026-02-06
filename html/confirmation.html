@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Order Confirmation - Foodzz</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="confirmation-card" style="margin-top:40px;">
+      <div class="success-icon">✓</div>
+      <h2>Order Confirmation</h2>
+      <p id="placedMessage" class="confirmation-text">Order has been placed</p>
+
+      <div class="order-details">
+        <div class="detail-row">
+          <span>Order ID:</span>
+          <span id="orderId">#0000</span>
+        </div>
+        <div class="detail-row">
+          <span>Payment Method:</span>
+          <span id="orderPayment">-</span>
+        </div>
+        <div class="detail-row">
+          <span>Status:</span>
+          <span id="orderStatus">Confirmed</span>
+        </div>
+        <div class="detail-row">
+          <span>Total:</span>
+          <span id="orderTotal">$0.00</span>
+        </div>
+      </div>
+
+      <div id="orderItems" class="confirmation-items"></div>
+
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button class="btn btn-primary" id="backHome">Back to Home</button>
+        <button class="btn btn-secondary" id="viewOrders">View Orders</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Read query params
+    const qs = new URLSearchParams(window.location.search);
+    const orderId = qs.get('order_id');
+    const payment = qs.get('payment');
+
+    document.getElementById('backHome').addEventListener('click', () => {
+      window.location.href = '/';
+    });
+    document.getElementById('viewOrders').addEventListener('click', () => {
+      window.location.href = '/admin';
+    });
+
+    if (!orderId) {
+      document.getElementById('placedMessage').textContent = 'No order information available.';
+    } else {
+      document.getElementById('orderId').textContent = `#${String(orderId).padStart(4,'0')}`;
+      if (payment) document.getElementById('orderPayment').textContent = payment.charAt(0).toUpperCase() + payment.slice(1);
+
+      // Fetch order details
+      fetch(`/api/orders/${orderId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) {
+            document.getElementById('placedMessage').textContent = 'Could not load order details.';
+            return;
+          }
+
+          document.getElementById('orderStatus').textContent = data.status;
+          document.getElementById('orderTotal').textContent = `$${parseFloat(data.total_price).toFixed(2)}`;
+
+          const itemsContainer = document.getElementById('orderItems');
+          if (data.items && data.items.length) {
+            itemsContainer.innerHTML = '<h4>Items</h4>' + data.items.map(it => `\n              <div class="confirmation-item">\n                <span>${it.food_name} × ${it.quantity}</span>\n                <span>$${(it.price * it.quantity).toFixed(2)}</span>\n              </div>\n            `).join('');
+          } else {
+            itemsContainer.innerHTML = '<p class="empty-state">No items found for this order.</p>';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('placedMessage').textContent = 'Error loading order details.';
+        });
+    }
+  </script>
+</body>
+</html>

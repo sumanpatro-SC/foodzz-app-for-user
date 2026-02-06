@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodzz - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <h1>⚙️ Foodzz Admin Dashboard</h1>
+            <button class="btn btn-secondary" id="backToFront">← Back to Store</button>
+        </header>
+
+        <!-- Admin Content -->
+        <div class="admin-content">
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <h2>Dashboard Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalRevenue">$0.00</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingOrders">0</div>
+                        <div class="stat-label">Pending Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="deliveredOrders">0</div>
+                        <div class="stat-label">Delivered</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Orders Section -->
+            <section class="recent-orders-section">
+                <h2>📋 Recent Orders</h2>
+                <div class="recent-orders-list" id="recentOrdersList">
+                    <p class="empty-state">No recent orders</p>
+                </div>
+            </section>
+
+            <!-- Orders Management -->
+            <section class="orders-management">
+                <h2>Orders Management</h2>
+                <div class="filters">
+                    <button class="filter-btn active" data-status="all">All Orders</button>
+                    <button class="filter-btn" data-status="pending">Pending</button>
+                    <button class="filter-btn" data-status="confirmed">Confirmed</button>
+                    <button class="filter-btn" data-status="preparing">Preparing</button>
+                    <button class="filter-btn" data-status="ready">Ready</button>
+                    <button class="filter-btn" data-status="delivered">Delivered</button>
+                </div>
+
+                <div class="orders-table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr><td colspan="7" class="empty-state">Loading orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Update Order Status</h3>
+            <div class="form-group">
+                <label>Order ID: <span id="modalOrderId"></span></label>
+            </div>
+            <div class="form-group">
+                <label>New Status *</label>
+                <select id="statusSelect">
+                    <option value="">-- Select Status --</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="ready">Ready</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+            <button class="btn btn-secondary" id="cancelStatusBtn">Cancel</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
