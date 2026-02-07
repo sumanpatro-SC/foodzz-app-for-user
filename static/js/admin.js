@@ -7,6 +7,7 @@ let selectedOrderForUpdate = null;
 document.addEventListener('DOMContentLoaded', () => {
     loadStats();
     loadAdminOrders();
+    loadFoodItems();
     setupAdminEventListeners();
     setupStatusModal();
     
@@ -67,7 +68,7 @@ async function loadStats() {
         const stats = await response.json();
 
         document.getElementById('totalOrders').textContent = stats.total_orders;
-        document.getElementById('totalRevenue').textContent = `$${stats.total_revenue.toFixed(2)}`;
+        document.getElementById('totalRevenue').textContent = `₹${stats.total_revenue.toFixed(2)}`;
         document.getElementById('pendingOrders').textContent = stats.orders_by_status['pending'] || 0;
         document.getElementById('deliveredOrders').textContent = stats.orders_by_status['delivered'] || 0;
         
@@ -114,7 +115,7 @@ function displayAdminOrders() {
                 <td>#${String(order.id).padStart(4, '0')}</td>
                 <td>${order.customer_name}</td>
                 <td>${items}</td>
-                <td>$${order.total_price.toFixed(2)}</td>
+                <td>₹${order.total_price.toFixed(2)}</td>
                 <td><span class="status-badge status-${order.status}">${order.status}</span></td>
                 <td>${date}</td>
                 <td>
@@ -164,7 +165,7 @@ function displayRecentOrders(recentOrders) {
                 <div class="recent-order-body">
                     <p><strong>${order.customer_name}</strong> - ${order.customer_email}</p>
                     <p class="order-address">${order.delivery_address}</p>
-                    <p class="order-total">Total: $${order.total_price.toFixed(2)}</p>
+                    <p class="order-total">Total: ₹${order.total_price.toFixed(2)}</p>
                     <p class="order-date">${date}</p>
                 </div>
             </div>
@@ -226,4 +227,102 @@ function showAdminSuccess(message) {
     alert.textContent = `✓ ${message}`;
     document.body.appendChild(alert);
     setTimeout(() => alert.remove(), 3000);
+}
+
+// Food Items Management - Display only (Add via separate page)
+let allFoodItems = [];
+let featuredIds = new Set();
+
+async function loadFoodItems() {
+    try {
+        const [foodsResp, featuredResp] = await Promise.all([
+            fetch('/api/foods'),
+            fetch('/api/admin/featured')
+        ]);
+
+        const foods = await foodsResp.json();
+        const featuredJson = await featuredResp.json();
+        const fids = (featuredJson && featuredJson.featured) ? featuredJson.featured : [];
+        featuredIds = new Set(fids);
+
+        allFoodItems = foods;
+        displayFoodItems(foods);
+    } catch (error) {
+        console.error('Error loading food items:', error);
+        document.getElementById('foodItemsList').innerHTML = '<p class="empty-state">Failed to load food items</p>';
+    }
+}
+
+function displayFoodItems(foods) {
+    const container = document.getElementById('foodItemsList');
+    
+    if (foods.length === 0) {
+        container.innerHTML = '<p class="empty-state">No food items available</p>';
+        return;
+    }
+
+    container.innerHTML = foods.map(food => {
+        const isFeatured = featuredIds.has(food.id);
+        return `
+        <div class="food-item-card">
+            <img src="/static/images/${food.image}" alt="${food.name}" class="food-item-image">
+            <div class="food-item-details">
+                <h4>${food.name} ${isFeatured ? '<span class="badge featured">★ Featured</span>' : ''}</h4>
+                <p>${food.description}</p>
+                <div class="food-item-price">₹${food.price.toFixed(2)}</div>
+                <span class="food-item-category">${food.category}</span>
+            </div>
+            <div class="food-item-actions">
+                <a class="btn" href="/admin/add-food?edit=${food.id}" style="margin-right:8px; text-decoration:none;">Edit</a>
+                <button class="food-item-delete" onclick="deleteFood(${food.id})">Delete</button>
+                <button class="food-item-feature" onclick="toggleFeatured(${food.id}, ${isFeatured})" style="margin-left:8px;">${isFeatured ? 'Unfeature' : 'Feature'}</button>
+            </div>
+        </div>
+    `}).join('');
+}
+
+
+function toggleFeatured(foodId, currentlyFeatured) {
+    const wanting = !currentlyFeatured;
+    fetch(`/api/admin/foods/${foodId}/featured`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featured: wanting })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showAdminSuccess(`Food #${foodId} ${wanting ? 'marked' : 'unmarked'} as featured`);
+            // update local set and re-render
+            if (wanting) featuredIds.add(foodId); else featuredIds.delete(foodId);
+            displayFoodItems(allFoodItems);
+        } else {
+            alert('Error: ' + (data.error || 'Failed to update featured'));
+        }
+    })
+    .catch(err => {
+        console.error('Error toggling featured:', err);
+        alert('Failed to update featured status');
+    });
+}
+
+function deleteFood(foodId) {
+    if (confirm('Are you sure you want to delete this food item?')) {
+        fetch(`/api/admin/foods/${foodId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAdminSuccess('Food item deleted successfully!');
+                loadFoodItems();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete food item');
+        });
+    }
 }

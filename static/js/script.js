@@ -21,17 +21,26 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupPageNavigation() {
     const viewCartBtn = document.getElementById('viewCartBtn');
     const adminBtn = document.getElementById('adminBtn');
+    const orderNowBtn = document.getElementById('orderNowBtn');
+    const orderFoodLink = document.getElementById('orderFoodLink');
     const continueShopping = document.getElementById('continueShopping');
     const proceedCheckout = document.getElementById('proceedCheckout');
     const backToCart = document.getElementById('backToCart');
     const backToHome = document.getElementById('backToHome');
 
-    viewCartBtn.onclick = () => showPage('cartPage');
-    adminBtn.onclick = () => window.location.href = '/admin';
-    continueShopping.onclick = () => showPage('homePage');
-    proceedCheckout.onclick = () => showPage('checkoutPage');
-    backToCart.onclick = () => showPage('cartPage');
-    backToHome.onclick = () => showPage('homePage');
+    if (viewCartBtn) viewCartBtn.onclick = () => showPage('cartPage');
+    if (adminBtn) adminBtn.onclick = () => window.location.href = '/admin';
+    if (orderNowBtn) orderNowBtn.onclick = () => {
+        document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' });
+    };
+    if (orderFoodLink) orderFoodLink.onclick = (e) => {
+        e.preventDefault();
+        document.querySelector('.featured-section').scrollIntoView({ behavior: 'smooth' });
+    };
+    if (continueShopping) continueShopping.onclick = () => showPage('homePage');
+    if (proceedCheckout) proceedCheckout.onclick = () => showPage('checkoutPage');
+    if (backToCart) backToCart.onclick = () => showPage('cartPage');
+    if (backToHome) backToHome.onclick = () => showPage('homePage');
 }
 
 function showPage(pageId) {
@@ -137,10 +146,12 @@ function displayFoods(foods) {
 
     grid.innerHTML = foods.map(food => `
         <div class="food-card" onclick="openFoodModal(${food.id})">
-            <span class="food-emoji">${food.image}</span>
+            <div class="food-image-container">
+                <img src="/static/images/${food.image}" alt="${food.name}" class="food-image">
+            </div>
             <h3>${food.name}</h3>
             <p>${food.description}</p>
-            <span class="price">$${food.price.toFixed(2)}</span>
+            <span class="price">₹${food.price.toFixed(2)}</span>
         </div>
     `).join('');
 }
@@ -153,7 +164,7 @@ function openFoodModal(foodId) {
     selectedFood = food;
     document.getElementById('modalFoodName').textContent = food.name;
     document.getElementById('modalFoodDesc').textContent = food.description;
-    document.getElementById('modalFoodPrice').textContent = `$${food.price.toFixed(2)}`;
+    document.getElementById('modalFoodPrice').textContent = `₹${food.price.toFixed(2)}`;
     document.getElementById('orderQty').value = 1;
     
     document.getElementById('foodModal').style.display = 'block';
@@ -213,14 +224,14 @@ function displayCart() {
         <div class="cart-item">
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+                <div class="cart-item-price">₹${item.price.toFixed(2)} each</div>
             </div>
             <div class="cart-item-qty">
                 <button onclick="updateQty(${item.id}, ${item.quantity - 1})">-</button>
                 <span>${item.quantity}</span>
                 <button onclick="updateQty(${item.id}, ${item.quantity + 1})">+</button>
             </div>
-            <div class="cart-item-total">$${(item.price * item.quantity).toFixed(2)}</div>
+            <div class="cart-item-total">₹${(item.price * item.quantity).toFixed(2)}</div>
             <button class="cart-item-remove" onclick="removeFromCart(${item.id})">Remove</button>
         </div>
     `).join('');
@@ -250,10 +261,10 @@ function removeFromCart(foodId) {
 }
 
 function updateCartTotals(subtotal, tax, deliveryFee) {
-    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
-    document.getElementById('deliveryFee').textContent = `$${deliveryFee.toFixed(2)}`;
-    document.getElementById('total').textContent = `$${(subtotal + tax + deliveryFee).toFixed(2)}`;
+    document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+    document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
+    document.getElementById('deliveryFee').textContent = `₹${deliveryFee.toFixed(2)}`;
+    document.getElementById('total').textContent = `₹${(subtotal + tax + deliveryFee).toFixed(2)}`;
 }
 
 function displayCheckoutPreview() {
@@ -272,14 +283,14 @@ function displayCheckoutPreview() {
     checkoutItems.innerHTML = cart.map(item => `
         <div class="checkout-item">
             <span>${item.name} × ${item.quantity}</span>
-            <span class="checkout-item-price">$${(item.price * item.quantity).toFixed(2)}</span>
+            <span class="checkout-item-price">₹${(item.price * item.quantity).toFixed(2)}</span>
         </div>
     `).join('');
 
-    document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById('checkoutTax').textContent = `$${tax.toFixed(2)}`;
-    document.getElementById('checkoutDelivery').textContent = `$${deliveryFee.toFixed(2)}`;
-    document.getElementById('checkoutTotal').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('checkoutSubtotal').textContent = `₹${subtotal.toFixed(2)}`;
+    document.getElementById('checkoutTax').textContent = `₹${tax.toFixed(2)}`;
+    document.getElementById('checkoutDelivery').textContent = `₹${deliveryFee.toFixed(2)}`;
+    document.getElementById('checkoutTotal').textContent = `₹${total.toFixed(2)}`;
 }
 
 // Checkout Setup

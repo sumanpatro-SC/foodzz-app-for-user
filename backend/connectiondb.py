@@ -21,6 +21,7 @@ def init_db():
     """Initialize SQLite database with tables and sample data"""
     conn = get_db()
     cursor = conn.cursor()
+    print("✓ DB connected")
     
     # Drop existing tables (for fresh start)
     cursor.execute('DROP TABLE IF EXISTS order_items')
@@ -71,16 +72,18 @@ def init_db():
         )
     ''')
     
-    # Insert sample foods
+    # Insert sample foods with image filenames
     sample_foods = [
-        ('Margherita Pizza', 'Fresh mozzarella, tomato, basil', 12.99, 'Pizza', '🍕'),
-        ('Pepperoni Pizza', 'Classic pepperoni on cheese', 13.99, 'Pizza', '🍕'),
-        ('Caesar Salad', 'Crispy romaine with parmesan', 8.99, 'Salad', '🥗'),
-        ('Burger', 'Beef patty with cheese and veggies', 10.99, 'Burgers', '🍔'),
-        ('Hot Dog', 'All-beef hot dog with toppings', 5.99, 'Hot Dogs', '🌭'),
-        ('Fries', 'Golden crispy french fries', 3.99, 'Sides', '🍟'),
-        ('Pasta Carbonara', 'Creamy Italian pasta', 11.99, 'Pasta', '🍝'),
-        ('Grilled Salmon', 'Fresh salmon with lemon', 14.99, 'Seafood', '🐟'),
+        ('Pizza', 'Delicious cheese pizza with fresh ingredients', 12.99, 'Pizza', 'pizza.png'),
+        ('Burger', 'Beef patty with cheese and veggies', 10.99, 'Burgers', 'burger.png'),
+        ('Fried Chicken', 'Crispy fried chicken pieces', 9.99, 'Chicken', 'fried-chicken.png'),
+        ('Sandwich', 'Fresh sandwich with layers of goodness', 8.99, 'Sandwiches', 'sandwich.png'),
+        ('Spring Roll', 'Crispy spring rolls with dipping sauce', 6.99, 'Appetizers', 'spring-roll.png'),
+        ('Chicken Roll', 'Tender chicken wrapped perfectly', 7.99, 'Rolls', 'chicken-roll.png'),
+        ('Momo', 'Steamed dumplings with filling', 8.49, 'Dumplings', 'momo.png'),
+        ('Spaghetti', 'Classic Italian spaghetti with sauce', 11.99, 'Pasta', 'spaghetti.png'),
+        ('Lasagna', 'Layered pasta with cheese and sauce', 13.99, 'Pasta', 'lasagna.png'),
+        ('Ice Cream', 'Refreshing ice cream dessert', 4.99, 'Desserts', 'icecream.png'),
     ]
     
     for name, desc, price, category, image in sample_foods:
@@ -102,6 +105,50 @@ def get_all_foods():
     foods = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return foods
+
+
+def get_featured_food_ids():
+    """Return a list of featured food IDs (creates table if missing)"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE IF NOT EXISTS featured (food_id INTEGER PRIMARY KEY)')
+    cursor.execute('SELECT food_id FROM featured')
+    ids = [row['food_id'] for row in cursor.fetchall()]
+    conn.close()
+    return ids
+
+
+def set_featured(food_id, featured=True):
+    """Mark or unmark a food item as featured"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE IF NOT EXISTS featured (food_id INTEGER PRIMARY KEY)')
+    if featured:
+        cursor.execute('INSERT OR IGNORE INTO featured (food_id) VALUES (?)', (food_id,))
+    else:
+        cursor.execute('DELETE FROM featured WHERE food_id = ?', (food_id,))
+    conn.commit()
+    conn.close()
+
+
+def update_food_item(food_id, name, description, price, category, image=None):
+    """Update an existing food item. If image is None, don't change it."""
+    conn = get_db()
+    cursor = conn.cursor()
+    if image:
+        cursor.execute('''
+            UPDATE foods
+            SET name = ?, description = ?, price = ?, category = ?, image = ?
+            WHERE id = ?
+        ''', (name, description, price, category, image, food_id))
+    else:
+        cursor.execute('''
+            UPDATE foods
+            SET name = ?, description = ?, price = ?, category = ?
+            WHERE id = ?
+        ''', (name, description, price, category, food_id))
+    conn.commit()
+    conn.close()
 
 
 def get_food_by_id(food_id):
@@ -231,3 +278,38 @@ def get_admin_stats():
         "orders_by_status": orders_by_status,
         "recent_orders": recent_orders
     }
+
+
+def add_food_item(name, description, price, category, image):
+    """Add a new food item to database"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+            INSERT INTO foods (name, description, price, category, image)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (name, description, price, category, image))
+        
+        conn.commit()
+        food_id = cursor.lastrowid
+        conn.close()
+        return food_id
+    except Exception as e:
+        conn.close()
+        raise Exception(f"Failed to add food item: {str(e)}")
+
+
+def delete_food_item(food_id):
+    """Delete a food item from database"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('DELETE FROM foods WHERE id = ?', (food_id,))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        conn.close()
+        raise Exception(f"Failed to delete food item: {str(e)}")
+

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Food Item - Foodzz Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin: 0 0 10px 0;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #ff6b6b;
+            margin-left: 3px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input[type="number"] {
+            font-size: 16px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .file-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            object-fit: cover;
+        }
+
+        .file-preview p {
+            color: #667eea;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .input-helper {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-cancel:hover {
+            background: #e8e8e8;
+            border-color: #d0d0d0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .price-input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .price-input-group::before {
+            content: '₹';
+            padding: 12px 12px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .price-input-group input {
+            border-radius: 0 8px 8px 0 !important;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .category-option {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .category-option:hover {
+            border-color: #667eea;
+            background: #f9f7ff;
+        }
+
+        .category-option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🍔 Add New Food Item</h1>
+            <p>Fill in the details to add a new food item to the menu</p>
+        </div>
+
+        <!-- Alerts -->
+        <div id="successAlert" class="alert success">
+            <strong>Success!</strong> Food item added successfully.
+        </div>
+        <div id="errorAlert" class="alert error">
+            <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
+
+        <!-- Form -->
+        <form id="addFoodForm">
+            <!-- Food Name -->
+            <div class="form-group">
+                <label for="foodName">
+                    Food Name <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="foodName" 
+                    name="foodName"
+                    placeholder="e.g., Tandoori Chicken"
+                    required
+                    maxlength="100"
+                >
+                <div class="input-helper">Maximum 100 characters</div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="foodDescription">
+                    Description <span class="required">*</span>
+                </label>
+                <textarea 
+                    id="foodDescription" 
+                    name="foodDescription"
+                    placeholder="e.g., Delicious tandoori chicken marinated with yogurt and spices"
+                    required
+                    maxlength="500"
+                ></textarea>
+                <div class="input-helper">
+                    <span id="descriptionCount">0</span>/500 characters
+                </div>
+            </div>
+
+            <!-- Price -->
+            <div class="form-group">
+                <label for="foodPrice">
+                    Price (Amount) <span class="required">*</span>
+                </label>
+                <div class="price-input-group">
+                    <input 
+                        type="number" 
+                        id="foodPrice" 
+                        name="foodPrice"
+                        placeholder="99.99"
+                        step="0.01"
+                        min="0.01"
+                        max="9999.99"
+                        required
+                    >
+                </div>
+                <div class="input-helper">Enter price in INR (₹)</div>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label for="foodCategory">
+                    Category <span class="required">*</span>
+                </label>
+                <select id="foodCategory" name="foodCategory" required>
+                    <option value="">-- Select Category --</option>
+                    <option value="Pizza">🍕 Pizza</option>
+                    <option value="Burgers">🍔 Burgers</option>
+                    <option value="Chicken">🍗 Chicken</option>
+                    <option value="Pasta">🍝 Pasta</option>
+                    <option value="Sandwiches">🥪 Sandwiches</option>
+                    <option value="Appetizers">🥢 Appetizers</option>
+                    <option value="Rolls">🥐 Rolls</option>
+                    <option value="Dumplings">🥟 Dumplings</option>
+                    <option value="Desserts">🍰 Desserts</option>
+                </select>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group">
+                <label for="foodImage">
+                    Food Image <span class="required">*</span>
+                </label>
+                <div class="file-input-wrapper">
+                    <input 
+                        type="file" 
+                        id="foodImage" 
+                        name="foodImage"
+                        accept="image/*"
+                        required
+                    >
+                </div>
+                <div class="input-helper">
+                    Supported formats: PNG, JPG, JPEG, GIF (Max 5MB)
+                </div>
+                <div class="file-preview" id="imagePreview"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-submit" id="submitBtn">
+                    <span class="loading" id="loadingSpinner">
+                        <span class="spinner"></span>Adding...
+                    </span>
+                    <span id="submitText">+ Add Food Item</span>
+                </button>
+                <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Character counter for description
+        const descriptionInput = document.getElementById('foodDescription');
+        const descriptionCount = document.getElementById('descriptionCount');
+        
+        descriptionInput.addEventListener('input', function() {
+            descriptionCount.textContent = this.value.length;
+        });
+
+        // Image preview
+        const imageInput = document.getElementById('foodImage');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        imageInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (file) {
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('Image size must be less than 5MB');
+                    this.value = '';
+                    imagePreview.innerHTML = '';
+                    return;
+                }
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imagePreview.innerHTML = `
+                        <img src="${event.target.result}" alt="Preview">
+                        <p>✓ Image ready to upload: ${file.name}</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.innerHTML = '';
+            }
+        });
+
+        // Check if we're in edit mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        if (editId) {
+            // Load food details
+            fetch(`/api/foods/${editId}`)
+            .then(res => res.json())
+            .then(food => {
+                if (food && food.id) {
+                    document.getElementById('foodName').value = food.name || '';
+                    document.getElementById('foodDescription').value = food.description || '';
+                    document.getElementById('foodPrice').value = food.price || '';
+                    document.getElementById('foodCategory').value = food.category || '';
+                    descriptionCount.textContent = (food.description || '').length;
+                    // show existing image preview
+                    if (food.image) {
+                        imagePreview.innerHTML = `<img src="/static/images/${food.image}" alt="Preview"><p>Existing image: ${food.image}</p>`;
+                    }
+                    // make image optional for edits
+                    document.getElementById('foodImage').required = false;
+                    document.getElementById('submitText').textContent = 'Update Food Item';
+                }
+            })
+            .catch(err => console.error('Failed loading food for edit:', err));
+        }
+
+        // Form submission
+        const form = document.getElementById('addFoodForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const foodName = document.getElementById('foodName').value.trim();
+            const foodDescription = document.getElementById('foodDescription').value.trim();
+            const foodPrice = document.getElementById('foodPrice').value;
+            const foodCategory = document.getElementById('foodCategory').value;
+            const foodImage = document.getElementById('foodImage').files[0];
+            
+            // Validation
+            if (!foodName || !foodDescription || !foodPrice || !foodCategory) {
+                showError('Please fill in all required fields');
+                return;
+            }
+            
+            // Prepare FormData
+            const formData = new FormData();
+            formData.append('name', foodName);
+            formData.append('description', foodDescription);
+            formData.append('price', parseFloat(foodPrice));
+            formData.append('category', foodCategory);
+            if (foodImage) formData.append('image', foodImage);
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            loadingSpinner.classList.add('active');
+            
+            try {
+                const url = editId ? `/api/admin/foods/${editId}` : '/api/admin/foods';
+                const method = editId ? 'PUT' : 'POST';
+                const response = await fetch(url, {
+                    method,
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to add food item');
+                }
+                
+                if (data.success) {
+                    showSuccess('Food item added successfully!');
+                    form.reset();
+                    imagePreview.innerHTML = '';
+                    descriptionCount.textContent = '0';
+                    
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/admin';
+                    }, 2000);
+                } else {
+                    throw new Error(data.error || 'Failed to add food item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitText.style.display = 'inline';
+                loadingSpinner.classList.remove('active');
+            }
+        });
+        
+        // Cancel button
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+                window.location.href = '/admin';
+            }
+        });
+        
+        // Alert functions
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = '✓ ' + message;
+            alert.style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            document.getElementById('errorMessage').textContent = message;
+            alert.style.display = 'block';
+            document.getElementById('successAlert').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -7,43 +7,52 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="nav-content">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-left">
                 <h1 class="nav-logo">🍔 Foodzz</h1>
-                <div class="nav-buttons">
-                    <button class="btn-small" id="viewCartBtn">🛒 Cart <span id="cartCount">0</span></button>
-                    <button class="btn-small" id="adminBtn">⚙️ Admin</button>
-                </div>
             </div>
-        </nav>
+            <div class="nav-menu">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link" id="orderFoodLink">Order Food</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Contact</a>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-login" id="viewCartBtn">🛒 Cart <span id="cartCount">0</span></button>
+                <button class="btn-admin" id="adminBtn">⚙️ Admin</button>
+            </div>
+        </div>
+    </nav>
 
+    <div class="container">
         <!-- Home Page -->
         <div id="homePage" class="page active">
-            <!-- Header -->
-            <header class="header">
-                <h2>Welcome to Foodzz</h2>
-                <p>Order your favorite food online</p>
-            </header>
+            <!-- Hero Banner -->
+            <section class="hero-banner">
+                <div class="hero-content">
+                    <h1>Delicious Food Delivered Fast!</h1>
+                    <p>Your favorite fast food, just a click away</p>
+                    <button class="btn-order-now" id="orderNowBtn">Order Now</button>
+                </div>
+            </section>
 
-            <!-- Main Content -->
-            <div class="content">
-                <!-- Foods Section -->
-                <section class="foods-section">
-                    <h2>Available Foods</h2>
-                    <div class="filters">
-                        <button class="filter-btn active" data-category="all">All</button>
-                        <button class="filter-btn" data-category="Pizza">Pizza</button>
-                        <button class="filter-btn" data-category="Burgers">Burgers</button>
-                        <button class="filter-btn" data-category="Salad">Salad</button>
-                        <button class="filter-btn" data-category="Pasta">Pasta</button>
-                    </div>
-                    <div class="foods-grid" id="foodsGrid">
-                        <!-- Foods will be loaded here -->
-                    </div>
-                </section>
-            </div>
+            <!-- Featured Items Section -->
+            <section class="featured-section">
+                <h2>Featured Items</h2>
+                <div class="featured-divider"></div>
+                <div class="filters">
+                    <button class="filter-btn active" data-category="all">All</button>
+                    <button class="filter-btn" data-category="Pizza">Pizza</button>
+                    <button class="filter-btn" data-category="Burgers">Burgers</button>
+                    <button class="filter-btn" data-category="Chicken">Chicken</button>
+                    <button class="filter-btn" data-category="Pasta">Pasta</button>
+                </div>
+                <div class="featured-grid" id="foodsGrid">
+                    <!-- Featured items will be loaded here -->
+                </div>
+            </section>
         </div>
 
         <!-- Shopping Cart Page -->
@@ -55,19 +64,19 @@
             <div class="cart-summary">
                 <div class="summary-row">
                     <span>Subtotal:</span>
-                    <span id="subtotal">$0.00</span>
+                    <span id="subtotal">₹0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Tax (8%):</span>
-                    <span id="tax">$0.00</span>
+                    <span id="tax">₹0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Delivery Fee:</span>
-                    <span id="deliveryFee">$5.00</span>
+                    <span id="deliveryFee">₹5.00</span>
                 </div>
                 <div class="summary-row total">
                     <span>Total:</span>
-                    <span id="total">$0.00</span>
+                    <span id="total">₹0.00</span>
                 </div>
             </div>
             <div class="cart-actions">
@@ -85,10 +94,10 @@
                     <h3>Order Summary</h3>
                     <div id="checkoutItems" class="checkout-items"></div>
                     <div class="checkout-total">
-                        <div>Subtotal: <span id="checkoutSubtotal">$0.00</span></div>
-                        <div>Tax: <span id="checkoutTax">$0.00</span></div>
-                        <div>Delivery: <span id="checkoutDelivery">$0.00</span></div>
-                        <div class="total">Total: <span id="checkoutTotal">$0.00</span></div>
+                        <div>Subtotal: <span id="checkoutSubtotal">₹0.00</span></div>
+                        <div>Tax: <span id="checkoutTax">₹0.00</span></div>
+                        <div>Delivery: <span id="checkoutDelivery">₹0.00</span></div>
+                        <div class="total">Total: <span id="checkoutTotal">₹0.00</span></div>
                     </div>
                 </div>
 
@@ -183,7 +192,7 @@
                     </div>
                     <div class="detail-row">
                         <span>Total Amount:</span>
-                        <span id="confirmTotal">$0.00</span>
+                        <span id="confirmTotal">₹0.00</span>
                     </div>
                 </div>
 
