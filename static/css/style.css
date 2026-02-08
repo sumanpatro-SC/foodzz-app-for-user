@@ -1276,3 +1276,16 @@ body {
     }
 }
 
+/* Footer */
+footer {
+    background: #3d3d3d;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin: 0;
+}

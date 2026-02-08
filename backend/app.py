@@ -39,6 +39,11 @@ def index():
     """Serve homepage"""
     return render_template('index.html')
 
+@app.route('/about')
+def about():
+    """Serve about page"""
+    return render_template('about.html')
+
 @app.route('/api/health')
 def health():
     """Health check endpoint"""

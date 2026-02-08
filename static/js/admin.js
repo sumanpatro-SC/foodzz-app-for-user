@@ -69,7 +69,7 @@ async function loadStats() {
 
         document.getElementById('totalOrders').textContent = stats.total_orders;
         document.getElementById('totalRevenue').textContent = `₹${stats.total_revenue.toFixed(2)}`;
-        document.getElementById('pendingOrders').textContent = stats.orders_by_status['pending'] || 0;
+        document.getElementById('pendingOrders').textContent = stats.pending_orders || 0;
         document.getElementById('deliveredOrders').textContent = stats.orders_by_status['delivered'] || 0;
         
         // Display recent orders

@@ -266,6 +266,10 @@ def get_admin_stats():
     cursor.execute('SELECT status, COUNT(*) as count FROM orders GROUP BY status')
     orders_by_status = {row['status']: row['count'] for row in cursor.fetchall()}
     
+    # Pending orders count (all orders that are not delivered)
+    cursor.execute("SELECT COUNT(*) as count FROM orders WHERE status != 'delivered'")
+    pending_orders = cursor.fetchone()['count']
+    
     # Recent orders
     cursor.execute('SELECT * FROM orders ORDER BY created_at DESC LIMIT 5')
     recent_orders = [dict(row) for row in cursor.fetchall()]
@@ -276,6 +280,7 @@ def get_admin_stats():
         "total_orders": total_orders,
         "total_revenue": round(total_revenue, 2),
         "orders_by_status": orders_by_status,
+        "pending_orders": pending_orders,
         "recent_orders": recent_orders
     }
 
